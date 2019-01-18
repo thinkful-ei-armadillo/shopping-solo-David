@@ -73,7 +73,6 @@ function renderShoppingList() {
   }
 }
 
-
 function addItemToShoppingList(itemName) {
   console.log(`Adding "${itemName}" to shopping list`);
   STORE.items.push({name: itemName, checked: false});
@@ -89,6 +88,44 @@ function handleNewItemSubmit() {
     renderShoppingList();
   });
 }
+
+function getUserSearchInput() {
+  // $('#js-shopping-list-search').submit(function(event){
+  //   event.preventDefault();
+  const userSearchString = $('.js-shopping-list-search').val(); 
+  return userSearchString;
+  // });
+}
+
+function filterSearchResults() {
+  let filteredArray= []; 
+  
+  STORE.items.forEach(function(item) {
+    if(item.name.includes(getUserSearchInput()) === true) {
+      filteredArray.push(item);
+    }
+  });
+  return filteredArray;
+}
+
+function handleItemSearch() {
+  $('#js-shopping-list-search').submit(function(event){
+    event.preventDefault();
+    const shoppingListItemsString = generateShoppingItemsString(filterSearchResults());
+    $('.js-shopping-list').html(shoppingListItemsString);
+  });
+}
+
+function clearSearch(){
+  $('#js-clear-search').submit(function(event){
+    event.preventDefault();
+    console.log('clear clicked');
+    // renderShoppingList();
+  //   event.preventDefault();
+  //   renderShoppingList();
+  });
+}
+
 
 function toggleCheckedForListItem(itemIndex) {
   console.log('Toggling checked property for item at index ' + itemIndex);
@@ -136,6 +173,9 @@ function handleShoppingList() {
   handleItemCheckClicked();
   handleDeleteItemClicked();
   handleHideCompletedCheckboxClicked();
+  handleItemSearch();
+  getUserSearchInput();
+  filterSearchResults();
 }
 
 // when the page loads, call `handleShoppingList`
