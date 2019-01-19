@@ -14,7 +14,8 @@ const STORE = {
     {name: 'milk', checked: true},
     {name: 'bread', checked: false}
   ],
-  hideCompleted: false
+  hideCompleted: false,
+  filter: ''
 };
 
 
@@ -34,10 +35,12 @@ function generateItemElement(item, itemIndex, template) {
 }
 
 
-function generateShoppingItemsString(shoppingList) {
+function generateShoppingItemsString() {
   console.log('Generating shopping list element');
 
-  const items = shoppingList.map((item, index) => generateItemElement(item, index));
+  const items = STORE.items.filter((element) => {
+    return element.name.includes(STORE.filter);
+  }).map((item, index) => generateItemElement(item, index));
   
   return items.join('');
 }
@@ -47,8 +50,8 @@ function toggleChecked(){
 }
 
 function handleHideCompletedCheckboxClicked(){
-  $('#hide-completed-checkbox').click(function() {toggleChecked();
-    console.log('hiii');
+  $('#hide-completed-checkbox').click(function(){ 
+    toggleChecked();
     renderShoppingList();
   });
 }
@@ -97,32 +100,21 @@ function getUserSearchInput() {
   // });
 }
 
-function filterSearchResults() {
-  let filteredArray= []; 
-  
-  STORE.items.forEach(function(item) {
-    if(item.name.includes(getUserSearchInput()) === true) {
-      filteredArray.push(item);
-    }
-  });
-  return filteredArray;
-}
-
 function handleItemSearch() {
   $('#js-shopping-list-search').submit(function(event){
     event.preventDefault();
-    const shoppingListItemsString = generateShoppingItemsString(filterSearchResults());
+    STORE.filter = getUserSearchInput();
+    const shoppingListItemsString = generateShoppingItemsString();
     $('.js-shopping-list').html(shoppingListItemsString);
   });
 }
 
-function clearSearch(){
+function handleClearSearchClick(){
   $('#js-clear-search').submit(function(event){
     event.preventDefault();
     console.log('clear clicked');
-    // renderShoppingList();
-  //   event.preventDefault();
-  //   renderShoppingList();
+    STORE.filter = '';
+    renderShoppingList();
   });
 }
 
@@ -175,7 +167,7 @@ function handleShoppingList() {
   handleHideCompletedCheckboxClicked();
   handleItemSearch();
   getUserSearchInput();
-  filterSearchResults();
+  handleClearSearchClick();
 }
 
 // when the page loads, call `handleShoppingList`
