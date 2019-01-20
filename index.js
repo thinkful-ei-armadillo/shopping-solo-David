@@ -30,14 +30,15 @@ function generateItemElement(item, itemIndex, template) {
         <button class="shopping-item-delete js-item-delete">
             <span class="button-label">delete</span>
         </button>
+        <button class="shopping-item-edit js-item-edit">
+        <span class="button-label">Edit</span>
+    </button>
       </div>
     </li>`;
 }
 
 
 function generateShoppingItemsString() {
-  console.log('Generating shopping list element');
-
   const items = STORE.items.filter((element) => {
     return element.name.includes(STORE.filter);
   }).map((item, index) => generateItemElement(item, index));
@@ -49,22 +50,31 @@ function toggleChecked(){
   STORE.hideCompleted = !STORE.hideCompleted;
 }
 
-function handleHideCompletedCheckboxClicked(){
-  $('#hide-completed-checkbox').click(function(){ 
-    toggleChecked();
-    renderShoppingList();
-  });
-}
 
 function filterItems(){
   let result = STORE.items.filter((item) => !item.checked);
   return result;
 }
 
+function handleHideCompletedCheckboxClicked(){
+  $('#hide-completed-checkbox').click(function(){ 
+    toggleChecked();
+    console.log('hide completed clicked');
+    renderShoppingList();
+  });
+}
+
+function genShoppingItemsHideCompletedString() {
+  const items = STORE.items.filter((element) => {
+    return element.checked !== true;
+  }).map((item, index) => generateItemElement(item, index));
+  
+  return items.join('');
+}
+
 function renderShoppingList() {
   if (STORE.hideCompleted === true){
-    const shoppingListItemsString = generateShoppingItemsString(filterItems());
-    console.log('filtering...');
+    const shoppingListItemsString = genShoppingItemsHideCompletedString(filterItems());
     $('.js-shopping-list').html(shoppingListItemsString);
   }
   else{
@@ -152,8 +162,47 @@ function handleDeleteItemClicked() {
     deleteItem(itemIndex);
     renderShoppingList();
   });
-  console.log('`handleDeleteItemClicked` ran');
 }
+
+function handleEditItemClicked() {
+  $('.js-shopping-list').on('click', '.js-item-edit', event => {
+    console.log('EDITING...');
+    addUserInputField();
+
+    
+
+    renderShoppingList();
+  });
+}
+
+function captureUserEdit() {
+  // set event listener on ul to watch everything with class .js-user-edit-input. On submit, use .val() to capture.
+  // if it isn't working, it might need to be initiated upon calling addUserInputField();. 
+}
+
+function addUserInputField(){
+  generateItemElementWithEdit()
+}
+
+function generateItemElementWithEdit(item, itemIndex, template) {
+  return `
+    <li class="js-item-index-element" data-item-index="${itemIndex}">
+      <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
+      <div class="shopping-item-controls">
+        <button class="shopping-item-toggle js-item-toggle">
+            <span class="button-label">check</span>
+        </button>
+        <button class="shopping-item-delete js-item-delete">
+            <span class="button-label">delete</span>
+        </button>
+        <button class="shopping-item-edit js-item-edit">
+        <span class="button-label">Edit</span>
+    </button>
+      </div>
+    </li>`;
+}
+
+// Add edit button by each delete button. Capture what user enters, then use that information to update STORE.items.name. Then render again. 
 
 // this function will be our callback when the page loads. it's responsible for
 // initially rendering the shopping list, and activating our individual functions
@@ -168,6 +217,8 @@ function handleShoppingList() {
   handleItemSearch();
   getUserSearchInput();
   handleClearSearchClick();
+  handleEditItemClicked();
+  captureUserEdit();
 }
 
 // when the page loads, call `handleShoppingList`
