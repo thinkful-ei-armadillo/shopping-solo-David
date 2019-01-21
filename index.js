@@ -157,52 +157,54 @@ function deleteItem(itemIndex){
 }
 
 function handleDeleteItemClicked() {
-  $('.js-shopping-list').on('click', '.js-item-delete', event => { //thicc arrow
+  $('.js-shopping-list').on('click', '.js-item-delete', event => {
     const itemIndex = getItemIndexFromElement(event.currentTarget);
     deleteItem(itemIndex);
     renderShoppingList();
   });
 }
 
+// function addEditBox(event) {
+//   console.log('EDITING...');
+//   addUserInputField(event);
+// }
+
 function handleEditItemClicked() {
-  $('.js-shopping-list').on('click', '.js-item-edit', event => {
+  $('.js-shopping-list').on('click', '.js-item-edit', function addEditBox(event) {
     console.log('EDITING...');
-    addUserInputField();
+    addUserInputField(event);
 
     
-
-    renderShoppingList();
   });
 }
 
-function captureUserEdit() {
-  // set event listener on ul to watch everything with class .js-user-edit-input. On submit, use .val() to capture.
-  // if it isn't working, it might need to be initiated upon calling addUserInputField();. 
+function addUserInputField(element){
+  // $(element.currentTarget).closest('js-item-edit').removeEventListener('click', addEditBox());
+  $(element.currentTarget).closest('li').append(generateEditField());
+  
 }
 
-function addUserInputField(){
-  generateItemElementWithEdit()
-}
-
-function generateItemElementWithEdit(item, itemIndex, template) {
+function generateEditField() {
   return `
-    <li class="js-item-index-element" data-item-index="${itemIndex}">
-      <span class="shopping-item js-shopping-item ${item.checked ? 'shopping-item__checked' : ''}">${item.name}</span>
-      <div class="shopping-item-controls">
-        <button class="shopping-item-toggle js-item-toggle">
-            <span class="button-label">check</span>
-        </button>
-        <button class="shopping-item-delete js-item-delete">
-            <span class="button-label">delete</span>
-        </button>
-        <button class="shopping-item-edit js-item-edit">
-        <span class="button-label">Edit</span>
-    </button>
-      </div>
-    </li>`;
+  <form id="js-edit-field">
+  <input type="text" name="item-edit" id="edit-input" class="edit-input" placeholder="New item name">
+  <button type="submit">Submit changes</button>
+</form>`;
 }
 
-// Add edit button by each delete button. Capture what user enters, then use that information to update STORE.items.name. Then render again. 
+function getUserInput() {
+  return $('#edit-input').val();
+}
+
+function handleSubmitChangesClick() {
+  $('.js-shopping-list').on('submit', '#js-edit-field', function (event){
+    event.preventDefault();
+    STORE.items[getItemIndexFromElement(event.currentTarget)].name = getUserInput();
+    renderShoppingList();
+  });
+  
+}
+
 
 // this function will be our callback when the page loads. it's responsible for
 // initially rendering the shopping list, and activating our individual functions
@@ -218,7 +220,7 @@ function handleShoppingList() {
   getUserSearchInput();
   handleClearSearchClick();
   handleEditItemClicked();
-  captureUserEdit();
+  handleSubmitChangesClick();
 }
 
 // when the page loads, call `handleShoppingList`
